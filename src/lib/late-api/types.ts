@@ -48,6 +48,7 @@ export const PLATFORM_NAMES: Record<Platform, string> = {
   telegram: "Telegram",
 };
 
+// Light mode colors (used on light backgrounds)
 export const PLATFORM_COLORS: Record<Platform, string> = {
   instagram: "#E4405F",
   tiktok: "#000000",
@@ -62,6 +63,23 @@ export const PLATFORM_COLORS: Record<Platform, string> = {
   googlebusiness: "#4285F4",
   reddit: "#FF4500",
   telegram: "#26A5E4",
+};
+
+// Dark mode colors (lighter versions for dark backgrounds)
+export const PLATFORM_COLORS_DARK: Record<Platform, string> = {
+  instagram: "#F77A94",
+  tiktok: "#FFFFFF",
+  youtube: "#FF4444",
+  linkedin: "#5AA9E6",
+  pinterest: "#FF4D6A",
+  twitter: "#FFFFFF",
+  facebook: "#4599FF",
+  threads: "#FFFFFF",
+  bluesky: "#4DA3FF",
+  snapchat: "#FFFC00",
+  googlebusiness: "#6BA3FF",
+  reddit: "#FF6633",
+  telegram: "#5BC4F0",
 };
 
 // Platforms that require entity selection after OAuth

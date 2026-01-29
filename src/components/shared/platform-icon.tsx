@@ -1,7 +1,8 @@
 "use client";
 
-import { type Platform, PLATFORM_COLORS } from "@/lib/late-api";
+import { type Platform, PLATFORM_COLORS, PLATFORM_COLORS_DARK } from "@/lib/late-api";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 // SVG icons for social platforms
 const platformIcons: Record<Platform, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
@@ -93,7 +94,9 @@ export function PlatformIcon({
   size = "md",
 }: PlatformIconProps) {
   const Icon = platformIcons[platform];
-  const color = PLATFORM_COLORS[platform];
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const color = isDark ? PLATFORM_COLORS_DARK[platform] : PLATFORM_COLORS[platform];
 
   return (
     <Icon
@@ -110,7 +113,13 @@ export function PlatformBadge({
   platform: Platform;
   className?: string;
 }) {
+  // Badge always uses the brand color as background with white icon
   const color = PLATFORM_COLORS[platform];
+  // For black-based platforms on dark mode, use a lighter background
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const isBlackBrand = ["tiktok", "twitter", "threads"].includes(platform);
+  const bgColor = isDark && isBlackBrand ? "#404040" : color;
 
   return (
     <div
@@ -118,7 +127,7 @@ export function PlatformBadge({
         "flex h-8 w-8 items-center justify-center rounded-full",
         className
       )}
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: bgColor }}
     >
       <PlatformIcon platform={platform} className="text-white" size="sm" />
     </div>
