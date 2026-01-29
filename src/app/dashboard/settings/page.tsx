@@ -124,13 +124,21 @@ export default function SettingsPage() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Uploads</span>
                   <span>
-                    {usageStats.usage.uploads} / {usageStats.limits.uploads}
+                    {usageStats.limits.uploads < 0 ? (
+                      <>{usageStats.usage.uploads.toLocaleString()} / ∞</>
+                    ) : (
+                      <>{usageStats.usage.uploads.toLocaleString()} / {usageStats.limits.uploads.toLocaleString()}</>
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Profiles</span>
                   <span>
-                    {usageStats.usage.profiles} / {usageStats.limits.profiles}
+                    {usageStats.limits.profiles < 0 ? (
+                      <>{usageStats.usage.profiles.toLocaleString()} / ∞</>
+                    ) : (
+                      <>{usageStats.usage.profiles.toLocaleString()} / {usageStats.limits.profiles.toLocaleString()}</>
+                    )}
                   </span>
                 </div>
               </div>

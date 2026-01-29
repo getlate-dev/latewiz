@@ -154,20 +154,26 @@ export default function DashboardLayout({
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Uploads</span>
                   <span>
-                    {usageStats.usage.uploads} / {usageStats.limits.uploads}
+                    {usageStats.limits.uploads < 0 ? (
+                      <>{usageStats.usage.uploads.toLocaleString()} / ∞</>
+                    ) : (
+                      <>{usageStats.usage.uploads.toLocaleString()} / {usageStats.limits.uploads.toLocaleString()}</>
+                    )}
                   </span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-background">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all"
-                    style={{
-                      width: `${Math.min(
-                        (usageStats.usage.uploads / usageStats.limits.uploads) * 100,
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
+                {usageStats.limits.uploads >= 0 && (
+                  <div className="h-1.5 overflow-hidden rounded-full bg-background">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{
+                        width: `${Math.min(
+                          (usageStats.usage.uploads / usageStats.limits.uploads) * 100,
+                          100
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
