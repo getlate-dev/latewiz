@@ -235,33 +235,33 @@ export default function DashboardLayout({
             {profiles.length > 1 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-2 h-8">
+                  <Button variant="outline" size="sm" className="gap-2">
                     <div
-                      className="h-2.5 w-2.5 rounded-full"
+                      className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: currentProfile?.color || '#888' }}
                     />
-                    <span className="max-w-24 truncate hidden sm:inline text-xs">
-                      {currentProfile?.name || 'Profile'}
+                    <span className="max-w-24 truncate hidden sm:inline">
+                      {currentProfile?.name || 'Select Profile'}
                     </span>
-                    <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                    <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuLabel className="text-xs">Switch Profile</DropdownMenuLabel>
+                  <DropdownMenuLabel>Switch Profile</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {profiles.map((profile: any) => (
                     <DropdownMenuItem
                       key={profile._id}
                       onClick={() => setDefaultProfileId(profile._id)}
-                      className="gap-2 text-sm"
+                      className="gap-2"
                     >
                       <div
-                        className="h-2.5 w-2.5 rounded-full"
+                        className="h-3 w-3 rounded-full"
                         style={{ backgroundColor: profile.color || '#888' }}
                       />
                       <span className="flex-1 truncate">{profile.name}</span>
                       {profile._id === defaultProfileId && (
-                        <Check className="h-3 w-3 text-primary" />
+                        <Check className="h-4 w-4 text-primary" />
                       )}
                     </DropdownMenuItem>
                   ))}
