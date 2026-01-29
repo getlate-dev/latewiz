@@ -77,23 +77,18 @@ export default function AccountsPage() {
   const connectedPlatforms = new Set<string>(accounts.map((a: any) => a.platform as string));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Page header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Connected Accounts</h1>
-          <p className="text-muted-foreground">
-            Manage your social media accounts and connections.
-          </p>
-        </div>
-        <Button onClick={() => setShowConnectDialog(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Connect Account
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Accounts</h1>
+        <Button size="sm" onClick={() => setShowConnectDialog(true)}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          Connect
         </Button>
       </div>
 
       {/* Connected accounts grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (
           <AccountsLoadingSkeleton />
         ) : accounts.length === 0 ? (
@@ -164,14 +159,14 @@ export default function AccountsPage() {
 function AccountsLoadingSkeleton() {
   return (
     <>
-      {Array.from({ length: 3 }).map((_, i) => (
+      {Array.from({ length: 6 }).map((_, i) => (
         <Card key={i} className="animate-pulse">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-muted" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-24 rounded bg-muted" />
-                <div className="h-3 w-16 rounded bg-muted" />
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-full bg-muted" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3.5 w-24 rounded bg-muted" />
+                <div className="h-2.5 w-16 rounded bg-muted" />
               </div>
             </div>
           </CardContent>
@@ -184,15 +179,15 @@ function AccountsLoadingSkeleton() {
 function EmptyAccountsState({ onConnect }: { onConnect: () => void }) {
   return (
     <Card className="col-span-full">
-      <CardContent className="flex flex-col items-center justify-center py-12">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-          <Plus className="h-8 w-8 text-muted-foreground" />
+      <CardContent className="flex flex-col items-center justify-center py-8">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <Plus className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h3 className="mt-4 font-semibold">No accounts connected</h3>
-        <p className="mt-2 text-center text-sm text-muted-foreground">
-          Connect your first social media account to start scheduling posts.
+        <h3 className="mt-3 font-medium text-sm">No accounts connected</h3>
+        <p className="mt-1 text-center text-xs text-muted-foreground">
+          Connect your first account to start scheduling.
         </p>
-        <Button className="mt-4" onClick={onConnect}>
+        <Button size="sm" className="mt-3" onClick={onConnect}>
           Connect Account
         </Button>
       </CardContent>

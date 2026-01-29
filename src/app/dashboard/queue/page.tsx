@@ -106,22 +106,17 @@ export default function QueuePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Page header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Queue</h1>
-          <p className="text-muted-foreground">
-            Manage your posting schedule and queued content.
-          </p>
-        </div>
-        <Button onClick={() => setShowAddSlot(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Time Slot
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Queue</h1>
+        <Button size="sm" onClick={() => setShowAddSlot(true)}>
+          <Plus className="mr-1.5 h-4 w-4" />
+          Add Slot
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {/* Queue Schedule */}
         <Card>
           <CardHeader>

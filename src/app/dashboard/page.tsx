@@ -2,300 +2,298 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { useAccounts, usePosts, useProfiles } from "@/hooks";
+import { useAccounts, usePosts, useProfiles, useQueuePreview } from "@/hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { AccountAvatar } from "@/components/accounts";
 import { PlatformIcons, PostStatusBadge } from "@/components/posts";
 import { PLATFORM_NAMES, type Platform } from "@/lib/late-api";
 import { format } from "date-fns/format";
 import { parseISO } from "date-fns/parseISO";
+import { cn } from "@/lib/utils";
 import {
   PenSquare,
   Calendar,
   Users,
   Clock,
-  ArrowRight,
+  Plus,
   CheckCircle2,
   Loader2,
   ListOrdered,
+  AlertCircle,
+  ArrowUpRight,
 } from "lucide-react";
 
 export default function DashboardPage() {
-  const { isLoading: profilesLoading } = useProfiles();
   const { data: accountsData, isLoading: accountsLoading } = useAccounts();
-  const { data: postsData, isLoading: postsLoading } = usePosts({ limit: 5 });
+  const { data: postsData, isLoading: postsLoading } = usePosts({ limit: 10 });
+  const { data: queueData } = useQueuePreview(5);
 
   const accounts = accountsData?.accounts || [];
   const posts = postsData?.posts || [];
+  const upcomingSlots = queueData?.slots || [];
 
-  // Memoize filtered posts to avoid recalculation on each render
-  const { scheduledPosts, publishedPosts } = useMemo(() => ({
+  const { scheduledPosts, publishedPosts, failedPosts } = useMemo(() => ({
     scheduledPosts: posts.filter((p: any) => p.status === "scheduled"),
     publishedPosts: posts.filter((p: any) => p.status === "published"),
+    failedPosts: posts.filter((p: any) => p.status === "failed"),
   }), [posts]);
 
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Here&apos;s an overview of your social media activity.
-          </p>
-        </div>
-        <Button asChild>
+    <div className="space-y-4">
+      {/* Header with CTA */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Dashboard</h1>
+        <Button size="sm" asChild>
           <Link href="/dashboard/compose">
-            <PenSquare className="mr-2 h-4 w-4" />
-            Create Post
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Post
           </Link>
         </Button>
       </div>
 
-      {/* Stats - Progressive loading: each stat loads independently */}
-      <StatsGrid
-        accounts={accounts.length}
-        scheduledPosts={scheduledPosts.length}
-        publishedPosts={publishedPosts.length}
-        accountsLoading={accountsLoading}
-        postsLoading={postsLoading}
-      />
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Connected Accounts - loads independently */}
-        <AccountsCard accounts={accounts} isLoading={accountsLoading} />
-
-        {/* Recent Posts - loads independently */}
-        <PostsCard posts={posts} isLoading={postsLoading} />
+      {/* Stats Row - Compact, mobile-first */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <StatCard
+          label="Accounts"
+          value={accounts.length}
+          icon={Users}
+          href="/dashboard/accounts"
+          isLoading={accountsLoading}
+        />
+        <StatCard
+          label="Scheduled"
+          value={scheduledPosts.length}
+          icon={Clock}
+          href="/dashboard/calendar"
+          isLoading={postsLoading}
+          color="blue"
+        />
+        <StatCard
+          label="Published"
+          value={publishedPosts.length}
+          icon={CheckCircle2}
+          href="/dashboard/calendar"
+          isLoading={postsLoading}
+          color="green"
+        />
+        <StatCard
+          label="Failed"
+          value={failedPosts.length}
+          icon={AlertCircle}
+          href="/dashboard/calendar"
+          isLoading={postsLoading}
+          color={failedPosts.length > 0 ? "red" : undefined}
+        />
       </div>
 
-      {/* Quick Actions - static, no loading needed */}
-      <QuickActionsCard />
+      {/* Main Content Grid */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Recent Posts - Takes 2 columns */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
+            <CardTitle className="text-sm font-medium">Recent Posts</CardTitle>
+            <Link href="/dashboard/calendar" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+              View all <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 pt-0">
+            {postsLoading ? (
+              <LoadingSkeleton rows={4} />
+            ) : posts.length === 0 ? (
+              <EmptyState message="No posts yet" href="/dashboard/compose" />
+            ) : (
+              <div className="divide-y divide-border">
+                {posts.slice(0, 6).map((post: any) => (
+                  <div key={post._id} className="flex items-start gap-3 py-2.5 first:pt-0 last:pb-0">
+                    {post.mediaItems?.[0] && (
+                      <img
+                        src={post.mediaItems[0].url}
+                        alt=""
+                        className="h-10 w-10 rounded object-cover flex-shrink-0 bg-muted"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm line-clamp-1">{post.content || "(No content)"}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <PlatformIcons platforms={post.platforms || []} size="xs" />
+                        {post.scheduledFor && (
+                          <span className="text-xs text-muted-foreground">
+                            {format(parseISO(post.scheduledFor), "MMM d, h:mm a")}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <PostStatusBadge status={post.status} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Right Column - Accounts & Queue */}
+        <div className="space-y-4">
+          {/* Connected Accounts */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
+              <CardTitle className="text-sm font-medium">Accounts</CardTitle>
+              <Link href="/dashboard/accounts" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+                Manage <ArrowUpRight className="h-3 w-3" />
+              </Link>
+            </CardHeader>
+            <CardContent className="px-4 pb-4 pt-0">
+              {accountsLoading ? (
+                <LoadingSkeleton rows={3} />
+              ) : accounts.length === 0 ? (
+                <EmptyState message="No accounts" href="/dashboard/accounts" />
+              ) : (
+                <div className="space-y-2">
+                  {accounts.slice(0, 5).map((account: any) => (
+                    <div key={account._id} className="flex items-center gap-2">
+                      <AccountAvatar account={account} size="xs" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {account.displayName || account.username}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                        {PLATFORM_NAMES[account.platform as Platform]}
+                      </Badge>
+                    </div>
+                  ))}
+                  {accounts.length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center pt-1">
+                      +{accounts.length - 5} more
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Upcoming Queue Slots */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
+              <CardTitle className="text-sm font-medium">Queue</CardTitle>
+              <Link href="/dashboard/queue" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+                Settings <ArrowUpRight className="h-3 w-3" />
+              </Link>
+            </CardHeader>
+            <CardContent className="px-4 pb-4 pt-0">
+              {upcomingSlots.length === 0 ? (
+                <EmptyState message="No queue slots" href="/dashboard/queue" />
+              ) : (
+                <div className="space-y-1.5">
+                  {upcomingSlots.slice(0, 4).map((slot: string, i: number) => (
+                    <div key={i} className="flex items-center justify-between rounded bg-muted/50 px-2.5 py-1.5">
+                      <span className="text-xs">{format(parseISO(slot), "EEE, MMM d")}</span>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                        {format(parseISO(slot), "h:mm a")}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Quick Actions - Compact row */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <QuickAction icon={PenSquare} label="Create Post" href="/dashboard/compose" />
+        <QuickAction icon={Calendar} label="Calendar" href="/dashboard/calendar" />
+        <QuickAction icon={ListOrdered} label="Queue" href="/dashboard/queue" />
+        <QuickAction icon={Users} label="Add Account" href="/dashboard/accounts" />
+      </div>
     </div>
   );
 }
 
-interface StatsGridProps {
-  accounts: number;
-  scheduledPosts: number;
-  publishedPosts: number;
-  accountsLoading: boolean;
-  postsLoading: boolean;
+interface StatCardProps {
+  label: string;
+  value: number;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+  isLoading?: boolean;
+  color?: "blue" | "green" | "red";
 }
 
-function StatsGrid({ accounts, scheduledPosts, publishedPosts, accountsLoading, postsLoading }: StatsGridProps) {
-  const stats = [
-    {
-      label: "Connected Accounts",
-      value: accounts,
-      icon: Users,
-      href: "/dashboard/accounts",
-      isLoading: accountsLoading,
-    },
-    {
-      label: "Scheduled Posts",
-      value: scheduledPosts,
-      icon: Clock,
-      href: "/dashboard/calendar",
-      isLoading: postsLoading,
-    },
-    {
-      label: "Published Posts",
-      value: publishedPosts,
-      icon: CheckCircle2,
-      href: "/dashboard/calendar",
-      isLoading: postsLoading,
-    },
-  ];
-
+function StatCard({ label, value, icon: Icon, href, isLoading, color }: StatCardProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      {stats.map((stat) => (
-        <Link key={stat.label} href={stat.href}>
-          <Card className="transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <p className="text-3xl font-bold mt-1">
-                    {stat.isLoading ? (
-                      <Loader2 className="h-7 w-7 animate-spin" />
-                    ) : (
-                      stat.value
-                    )}
-                  </p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5">
-                  <stat.icon className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+    <Link href={href}>
+      <div className={cn(
+        "rounded-lg border bg-card p-3 transition-colors hover:bg-accent/50",
+        color === "blue" && value > 0 && "border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20",
+        color === "green" && value > 0 && "border-green-500/30 bg-green-50/50 dark:bg-green-950/20",
+        color === "red" && value > 0 && "border-red-500/30 bg-red-50/50 dark:bg-red-950/20",
+      )}>
+        <div className="flex items-center justify-between">
+          <Icon className={cn(
+            "h-4 w-4 text-muted-foreground",
+            color === "blue" && value > 0 && "text-blue-600 dark:text-blue-400",
+            color === "green" && value > 0 && "text-green-600 dark:text-green-400",
+            color === "red" && value > 0 && "text-red-600 dark:text-red-400",
+          )} />
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <span className={cn(
+              "text-xl font-semibold",
+              color === "blue" && value > 0 && "text-blue-600 dark:text-blue-400",
+              color === "green" && value > 0 && "text-green-600 dark:text-green-400",
+              color === "red" && value > 0 && "text-red-600 dark:text-red-400",
+            )}>{value}</span>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">{label}</p>
+      </div>
+    </Link>
+  );
+}
+
+interface QuickActionProps {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  href: string;
+}
+
+function QuickAction({ icon: Icon, label, href }: QuickActionProps) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-2 rounded-lg border bg-card px-3 py-2.5 text-sm transition-colors hover:bg-accent/50"
+    >
+      <Icon className="h-4 w-4 text-primary" />
+      <span className="font-medium">{label}</span>
+    </Link>
+  );
+}
+
+function LoadingSkeleton({ rows }: { rows: number }) {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded bg-muted animate-pulse" />
+          <div className="flex-1 space-y-1">
+            <div className="h-3 w-3/4 rounded bg-muted animate-pulse" />
+            <div className="h-2 w-1/2 rounded bg-muted animate-pulse" />
+          </div>
+        </div>
       ))}
     </div>
   );
 }
 
-interface AccountsCardProps {
-  accounts: any[];
-  isLoading: boolean;
-}
-
-function AccountsCard({ accounts, isLoading }: AccountsCardProps) {
+function EmptyState({ message, href }: { message: string; href: string }) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-base font-medium">Connected Accounts</CardTitle>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/accounts">
-            View all
-            <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <LoadingState />
-        ) : accounts.length === 0 ? (
-          <EmptyState
-            icon={Users}
-            message="No accounts connected yet"
-            action={{ label: "Connect Account", href: "/dashboard/accounts" }}
-          />
-        ) : (
-          <div className="space-y-3">
-            {accounts.slice(0, 5).map((account: any) => (
-              <div key={account._id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <AccountAvatar account={account} size="sm" />
-                  <div>
-                    <p className="text-sm font-medium">
-                      {account.displayName || account.username}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {PLATFORM_NAMES[account.platform as Platform]}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-interface PostsCardProps {
-  posts: any[];
-  isLoading: boolean;
-}
-
-function PostsCard({ posts, isLoading }: PostsCardProps) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-base font-medium">Recent Posts</CardTitle>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/calendar">
-            View calendar
-            <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <LoadingState />
-        ) : posts.length === 0 ? (
-          <EmptyState
-            icon={Calendar}
-            message="No posts created yet"
-            action={{ label: "Create Post", href: "/dashboard/compose" }}
-          />
-        ) : (
-          <div className="space-y-3">
-            {posts.slice(0, 5).map((post: any) => (
-              <div key={post._id} className="space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="line-clamp-2 text-sm">
-                    {post.content || "(No content)"}
-                  </p>
-                  <PostStatusBadge status={post.status} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <PlatformIcons platforms={post.platforms || []} />
-                  {post.scheduledFor && (
-                    <p className="text-xs text-muted-foreground">
-                      {format(parseISO(post.scheduledFor), "MMM d, h:mm a")}
-                    </p>
-                  )}
-                </div>
-                <Separator />
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function QuickActionsCard() {
-  const actions = [
-    { icon: PenSquare, label: "Create Post", description: "Write and schedule content", href: "/dashboard/compose" },
-    { icon: Calendar, label: "View Calendar", description: "See scheduled posts", href: "/dashboard/calendar" },
-    { icon: ListOrdered, label: "Manage Queue", description: "Set posting times", href: "/dashboard/queue" },
-    { icon: Users, label: "Connect Account", description: "Add new platforms", href: "/dashboard/accounts" },
-  ];
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base font-medium">Quick Actions</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {actions.map((action) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              className="flex flex-col gap-2 rounded-lg border p-4 transition-all duration-200 hover:border-primary/30 hover:bg-accent/50 hover:-translate-y-0.5"
-            >
-              <action.icon className="h-5 w-5 text-primary" />
-              <span className="font-medium text-sm">{action.label}</span>
-              <span className="text-xs text-muted-foreground">{action.description}</span>
-            </Link>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function LoadingState() {
-  return (
-    <div className="flex items-center justify-center py-8">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-    </div>
-  );
-}
-
-interface EmptyStateProps {
-  icon: React.ComponentType<{ className?: string }>;
-  message: string;
-  action: { label: string; href: string };
-}
-
-function EmptyState({ icon: Icon, message, action }: EmptyStateProps) {
-  return (
-    <div className="flex flex-col items-center justify-center py-8 text-center">
-      <Icon className="h-12 w-12 text-muted-foreground/50" />
-      <p className="mt-4 text-sm text-muted-foreground">{message}</p>
-      <Button variant="outline" size="sm" className="mt-4" asChild>
-        <Link href={action.href}>{action.label}</Link>
+    <div className="flex flex-col items-center py-4 text-center">
+      <p className="text-xs text-muted-foreground">{message}</p>
+      <Button variant="link" size="sm" className="h-auto p-0 mt-1 text-xs" asChild>
+        <Link href={href}>Get started</Link>
       </Button>
     </div>
   );

@@ -178,28 +178,33 @@ export function PostCard({
 interface PlatformIconsProps {
   platforms: Array<{ platform: string }>;
   max?: number;
+  size?: "xs" | "sm";
 }
 
-export function PlatformIcons({ platforms, max = 4 }: PlatformIconsProps) {
+export function PlatformIcons({ platforms, max = 4, size = "sm" }: PlatformIconsProps) {
   const visiblePlatforms = platforms.slice(0, max);
   const remaining = platforms.length - max;
+
+  const containerSize = size === "xs" ? "h-5 w-5" : "h-6 w-6";
+  const iconSize = size === "xs" ? "xs" : "xs"; // Both use xs PlatformIcon, but different container
+  const fontSize = size === "xs" ? "text-[10px]" : "text-xs";
 
   return (
     <div className="flex -space-x-1">
       {visiblePlatforms.map((p, i) => (
         <div
           key={i}
-          className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-muted"
+          className={`flex ${containerSize} items-center justify-center rounded-full border-2 border-card bg-muted`}
         >
           <PlatformIcon
             platform={p.platform as Platform}
-            size="xs"
+            size={iconSize}
             showColor
           />
         </div>
       ))}
       {remaining > 0 && (
-        <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-muted text-xs font-medium">
+        <div className={`flex ${containerSize} items-center justify-center rounded-full border-2 border-card bg-muted ${fontSize} font-medium`}>
           +{remaining}
         </div>
       )}

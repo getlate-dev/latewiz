@@ -92,45 +92,37 @@ export default function CalendarPage() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Calendar</h1>
-          <p className="text-muted-foreground">
-            View and manage your scheduled content.
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/compose">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Post
-          </Link>
-        </Button>
-      </div>
-
-      {/* Calendar controls */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-3">
+      {/* Header with controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={handlePrevMonth}>
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrevMonth}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h2 className="min-w-40 text-center text-lg font-semibold">
+          <h1 className="min-w-36 text-center text-base font-semibold">
             {format(currentDate, "MMMM yyyy")}
-          </h2>
-          <Button variant="outline" size="icon" onClick={handleNextMonth}>
+          </h1>
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNextMonth}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleToday}>
+          <Button variant="outline" size="sm" className="h-8" onClick={handleToday}>
             Today
           </Button>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{scheduledCount} scheduled</Badge>
-            <Badge variant="default">{publishedCount} published</Badge>
-          </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+            {scheduledCount} scheduled
+          </Badge>
+          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+            {publishedCount} published
+          </Badge>
+          <Button size="sm" className="h-8" asChild>
+            <Link href="/dashboard/compose">
+              <Plus className="mr-1.5 h-4 w-4" />
+              New Post
+            </Link>
+          </Button>
         </div>
       </div>
 

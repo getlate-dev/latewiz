@@ -99,18 +99,13 @@ export default function ComposePage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-4">
       {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-bold">Create Post</h1>
-        <p className="text-muted-foreground">
-          Compose and schedule your content across multiple platforms.
-        </p>
-      </div>
+      <h1 className="text-xl font-semibold">Create Post</h1>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* Main content area */}
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-4 lg:col-span-2">
           {/* Content */}
           <Card>
             <CardHeader>
@@ -166,7 +161,7 @@ export default function ComposePage() {
         </div>
 
         {/* Sidebar - Platform selection */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">

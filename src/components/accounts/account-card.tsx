@@ -29,43 +29,45 @@ export function AccountCard({
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            <AccountAvatar account={account} />
-            <div>
-              <p className="font-medium">
-                {account.displayName || account.username}
-              </p>
-              <p className="text-sm text-muted-foreground">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <AccountAvatar account={account} size="sm" />
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-sm truncate">
+              {account.displayName || account.username}
+            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xs text-muted-foreground">
                 {PLATFORM_NAMES[platform]}
-              </p>
+              </span>
+              <AccountHealthBadge isHealthy={isHealthy} compact />
             </div>
           </div>
-          {showActions && onDelete && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-destructive"
-              onClick={() => onDelete(account._id)}
-              aria-label={`Disconnect ${account.displayName || account.username} account`}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-
-        <div className="mt-4 flex items-center justify-between">
-          <AccountHealthBadge isHealthy={isHealthy} />
-          {!isHealthy && onReconnect && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onReconnect(platform)}
-            >
-              <RefreshCw className="mr-1 h-3 w-3" />
-              Reconnect
-            </Button>
+          {showActions && (
+            <div className="flex items-center gap-1">
+              {!isHealthy && onReconnect && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  onClick={() => onReconnect(platform)}
+                  aria-label="Reconnect account"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={() => onDelete(account._id)}
+                  aria-label={`Disconnect ${account.displayName || account.username} account`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </CardContent>
@@ -75,25 +77,28 @@ export function AccountCard({
 
 interface AccountAvatarProps {
   account: Account;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
 }
 
 export function AccountAvatar({ account, size = "md" }: AccountAvatarProps) {
   const platform = account.platform as Platform;
   const sizeClasses = {
+    xs: "h-6 w-6",
     sm: "h-8 w-8",
     md: "h-12 w-12",
     lg: "h-16 w-16",
   };
 
   const badgeSizeClasses = {
+    xs: "h-3 w-3 -bottom-0 -right-0",
     sm: "h-4 w-4 -bottom-0.5 -right-0.5",
     md: "h-5 w-5 -bottom-1 -right-1",
     lg: "h-6 w-6 -bottom-1 -right-1",
   };
 
   // Map badge container sizes to appropriate icon sizes for proper padding
-  const badgeIconSizes: Record<"sm" | "md" | "lg", "xs" | "sm"> = {
+  const badgeIconSizes: Record<"xs" | "sm" | "md" | "lg", "xs" | "sm"> = {
+    xs: "xs",   // 12px container -> 10px icon
     sm: "xs",   // 16px container -> 10px icon
     md: "xs",   // 20px container -> 10px icon
     lg: "sm",   // 24px container -> 16px icon
@@ -109,7 +114,7 @@ export function AccountAvatar({ account, size = "md" }: AccountAvatarProps) {
           <PlatformIcon
             platform={platform}
             className="text-white"
-            size={size === "lg" ? "md" : "sm"}
+            size={size === "lg" ? "md" : size === "xs" ? "xs" : "sm"}
           />
         </AvatarFallback>
       </Avatar>
@@ -129,9 +134,18 @@ export function AccountAvatar({ account, size = "md" }: AccountAvatarProps) {
 
 interface AccountHealthBadgeProps {
   isHealthy: boolean;
+  compact?: boolean;
 }
 
-export function AccountHealthBadge({ isHealthy }: AccountHealthBadgeProps) {
+export function AccountHealthBadge({ isHealthy, compact = false }: AccountHealthBadgeProps) {
+  if (compact) {
+    return isHealthy ? (
+      <CheckCircle2 className="h-3 w-3 text-green-600 dark:text-green-400" />
+    ) : (
+      <AlertCircle className="h-3 w-3 text-destructive" />
+    );
+  }
+
   return (
     <Badge variant={isHealthy ? "default" : "destructive"} className="gap-1">
       {isHealthy ? (
