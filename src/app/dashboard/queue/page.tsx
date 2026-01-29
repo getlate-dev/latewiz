@@ -103,8 +103,10 @@ export default function QueuePage() {
     }
   };
 
-  const formatTime = (hour: number, minute: number) => {
-    return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+  const formatTime = (hour: number | undefined, minute: number | undefined) => {
+    const h = hour ?? 0;
+    const m = minute ?? 0;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -161,7 +163,7 @@ export default function QueuePage() {
                       <p className="text-sm font-medium">{day}</p>
                       <div className="flex flex-wrap gap-2">
                         {daySlots
-                          .sort((a, b) => a.hour * 60 + a.minute - (b.hour * 60 + b.minute))
+                          .sort((a, b) => ((a.hour ?? 0) * 60 + (a.minute ?? 0)) - ((b.hour ?? 0) * 60 + (b.minute ?? 0)))
                           .map((slot, i) => (
                             <Badge
                               key={i}
