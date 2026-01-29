@@ -9,11 +9,10 @@ import {
   endOfWeek,
   eachDayOfInterval,
   isSameMonth,
-  isSameDay,
   parseISO,
   isToday,
 } from "date-fns";
-import { PlatformIcons, PostStatusBadge } from "@/components/posts";
+import { PlatformIcons } from "@/components/posts";
 import { cn } from "@/lib/utils";
 
 interface Post {

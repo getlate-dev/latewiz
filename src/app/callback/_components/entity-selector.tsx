@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PlatformIcon } from "@/components/shared";
-import { PLATFORM_NAMES, type Platform } from "@/lib/late-api";
+import { type Platform } from "@/lib/late-api";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 interface Entity {

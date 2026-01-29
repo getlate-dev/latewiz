@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { format } from "date-fns";
 import { useAppStore } from "@/stores";
 import { useNextQueueSlot } from "@/hooks";
@@ -13,13 +12,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CalendarIcon, Clock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 

@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 export default function DashboardPage() {
-  const { data: profilesData, isLoading: profilesLoading } = useProfiles();
+  const { isLoading: profilesLoading } = useProfiles();
   const { data: accountsData, isLoading: accountsLoading } = useAccounts();
   const { data: postsData, isLoading: postsLoading } = usePosts({ limit: 5 });
 

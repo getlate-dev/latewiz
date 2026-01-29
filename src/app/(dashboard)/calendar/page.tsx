@@ -10,7 +10,6 @@ import {
   endOfMonth,
 } from "date-fns";
 import { useCalendarPosts, useDeletePost } from "@/hooks";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -35,7 +34,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Calendar as CalendarIcon,
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -52,7 +50,7 @@ export default function CalendarPage() {
   const dateTo = format(addMonths(endOfMonth(currentDate), 1), "yyyy-MM-dd");
 
   const { data: postsData, isLoading } = useCalendarPosts(dateFrom, dateTo);
-  const posts = (postsData?.posts || []) as any[];
+  const posts = useMemo(() => (postsData?.posts || []) as any[], [postsData?.posts]);
 
   const selectedPost = useMemo(
     () => posts.find((p: any) => p._id === selectedPostId),
@@ -164,7 +162,7 @@ export default function CalendarPage() {
           {selectedPost && (
             <PostCard
               post={selectedPost}
-              onEdit={(id) => {
+              onEdit={(_id) => {
                 // Navigate to edit page
                 setSelectedPostId(null);
               }}

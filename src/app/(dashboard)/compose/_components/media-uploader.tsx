@@ -42,7 +42,7 @@ export function MediaUploader({
         try {
           const uploaded = await uploadMutation.mutateAsync(file);
           onMediaChange([...media, uploaded]);
-        } catch (err) {
+        } catch {
           toast.error(`Failed to upload ${file.name}`);
         }
       }

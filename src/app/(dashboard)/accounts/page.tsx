@@ -28,9 +28,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { AccountCard } from "@/components/accounts";
-import { PlatformIcon } from "@/components/shared";
 import { ConnectPlatformGrid } from "./_components/connect-platform-grid";
-import { PLATFORMS, PLATFORM_NAMES, type Platform } from "@/lib/late-api";
+import { type Platform } from "@/lib/late-api";
 import { Plus, Loader2 } from "lucide-react";
 
 export default function AccountsPage() {

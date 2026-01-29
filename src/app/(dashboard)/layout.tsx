@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useAuthStore, useAppStore } from "@/stores";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Late from "@getlatedev/node";
@@ -12,13 +12,19 @@ import { EntitySelector } from "./_components/entity-selector";
 
 type CallbackStep = "processing" | "select_entity" | "success" | "error";
 
+interface Entity {
+  id: string;
+  name: string;
+  picture?: string;
+}
+
 interface EntityData {
   platform: string;
   tempToken?: string;
   userProfile?: string;
   connectToken?: string;
   pendingDataToken?: string;
-  entities?: any[];
+  entities?: Entity[];
 }
 
 export default function CallbackPage() {
@@ -30,16 +36,74 @@ export default function CallbackPage() {
   const [error, setError] = useState<string | null>(null);
   const [entityData, setEntityData] = useState<EntityData | null>(null);
 
-  useEffect(() => {
-    if (!apiKey) {
-      router.push("/");
-      return;
+  const handleEntitySelection = useCallback(async (platform: string, stepType: string) => {
+    if (!apiKey) return;
+    const late = new Late({ apiKey });
+    const tempToken = searchParams.get("tempToken");
+    const userProfile = searchParams.get("userProfile");
+    const connectToken = searchParams.get("connect_token");
+    const pendingDataToken = searchParams.get("pendingDataToken");
+
+    try {
+      let entities: Entity[] = [];
+
+      switch (platform) {
+        case "facebook":
+          if (stepType === "select_page") {
+            const { data } = await late.connect.facebook.listFacebookPages({
+              headers: { "X-Connect-Token": connectToken || "" },
+            });
+            entities = (data?.pages || []) as Entity[];
+          }
+          break;
+
+        case "linkedin":
+          if (stepType === "select_organization" && pendingDataToken) {
+            const { data } = await late.connect.getPendingOAuthData({
+              query: { token: pendingDataToken },
+            });
+            entities = (data?.organizations || []) as Entity[];
+          }
+          break;
+
+        case "pinterest":
+          if (stepType === "select_board") {
+            const { data } = await late.connect.pinterest.listPinterestBoardsForSelection({
+              query: { tempToken: tempToken || "" },
+              headers: { "X-Connect-Token": connectToken || "" },
+            });
+            entities = (data?.boards || []) as Entity[];
+          }
+          break;
+
+        case "googlebusiness":
+          if (stepType === "select_location") {
+            const { data } = await late.connect.googleBusiness.listGoogleBusinessLocations({
+              query: { tempToken: tempToken || "" },
+              headers: { "X-Connect-Token": connectToken || "" },
+            });
+            entities = (data?.locations || []) as Entity[];
+          }
+          break;
+      }
+
+      setEntityData({
+        platform,
+        tempToken: tempToken || undefined,
+        userProfile: userProfile || undefined,
+        connectToken: connectToken || undefined,
+        pendingDataToken: pendingDataToken || undefined,
+        entities,
+      });
+      setStep("select_entity");
+    } catch (err) {
+      console.error("Entity fetch error:", err);
+      setError("Failed to load options. Please try again.");
+      setStep("error");
     }
+  }, [apiKey, searchParams]);
 
-    handleCallback();
-  }, [searchParams, apiKey]);
-
-  const handleCallback = async () => {
+  const handleCallback = useCallback(async () => {
     try {
       const platform = searchParams.get("platform");
       const connected = searchParams.get("connected");
@@ -75,73 +139,15 @@ export default function CallbackPage() {
       setError("Failed to process connection. Please try again.");
       setStep("error");
     }
-  };
+  }, [searchParams, router, handleEntitySelection]);
 
-  const handleEntitySelection = async (platform: string, stepType: string) => {
-    const late = new Late({ apiKey: apiKey! });
-    const tempToken = searchParams.get("tempToken");
-    const userProfile = searchParams.get("userProfile");
-    const connectToken = searchParams.get("connect_token");
-    const pendingDataToken = searchParams.get("pendingDataToken");
-
-    try {
-      let entities: any[] = [];
-
-      switch (platform) {
-        case "facebook":
-          if (stepType === "select_page") {
-            const { data } = await late.connect.facebook.listFacebookPages({
-              headers: { "X-Connect-Token": connectToken || "" },
-            });
-            entities = data?.pages || [];
-          }
-          break;
-
-        case "linkedin":
-          if (stepType === "select_organization" && pendingDataToken) {
-            const { data } = await late.connect.getPendingOAuthData({
-              query: { token: pendingDataToken },
-            });
-            entities = data?.organizations || [];
-          }
-          break;
-
-        case "pinterest":
-          if (stepType === "select_board") {
-            const { data } = await late.connect.pinterest.listPinterestBoardsForSelection({
-              query: { tempToken: tempToken || "" },
-              headers: { "X-Connect-Token": connectToken || "" },
-            });
-            entities = data?.boards || [];
-          }
-          break;
-
-        case "googlebusiness":
-          if (stepType === "select_location") {
-            const { data } = await late.connect.googleBusiness.listGoogleBusinessLocations({
-              query: { tempToken: tempToken || "" },
-              headers: { "X-Connect-Token": connectToken || "" },
-            });
-            entities = data?.locations || [];
-          }
-          break;
-      }
-
-      setEntityData({
-        platform,
-        tempToken: tempToken || undefined,
-        userProfile: userProfile || undefined,
-        connectToken: connectToken || undefined,
-        pendingDataToken: pendingDataToken || undefined,
-        entities,
-      });
-      setStep("select_entity");
-    } catch (err) {
-      console.error("Entity fetch error:", err);
-      setError("Failed to load options. Please try again.");
-      setStep("error");
+  useEffect(() => {
+    if (!apiKey) {
+      router.push("/");
+      return;
     }
-  };
+    handleCallback();
+  }, [apiKey, router, handleCallback]);
 
   const handleEntitySelect = async (entityId: string) => {
     if (!entityData || !apiKey) return;

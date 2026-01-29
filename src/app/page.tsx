@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ApiKeyModal } from "@/components/shared/api-key-modal";
 import { PlatformIcon } from "@/components/shared/platform-icon";
 import { Logo } from "@/components/shared/logo";
-import { PLATFORMS, PLATFORM_NAMES, type Platform } from "@/lib/late-api";
+import { PLATFORMS, PLATFORM_NAMES } from "@/lib/late-api";
 import {
   Calendar,
   Clock,

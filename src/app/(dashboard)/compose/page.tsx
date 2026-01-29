@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { format } from "date-fns";
 import { useCreatePost, useAccounts, useCurrentProfileId, type UploadedMedia } from "@/hooks";
 import { useAppStore } from "@/stores";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,7 +93,7 @@ export default function ComposePage() {
       );
 
       router.push("/dashboard/calendar");
-    } catch (err) {
+    } catch {
       toast.error("Failed to create post. Please try again.");
     }
   };
