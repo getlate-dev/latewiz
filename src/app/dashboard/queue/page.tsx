@@ -430,7 +430,11 @@ export default function QueuePage() {
                           </button>
                         </p>
                       ) : (
-                        DAYS_OF_WEEK.map((day, dayIndex) => {
+                        <>
+                        <p className="text-xs text-muted-foreground">
+                          Times in {queue.timezone?.replace(/_/g, " ")}
+                        </p>
+                        {DAYS_OF_WEEK.map((day, dayIndex) => {
                           const daySlots = slotsByDay[dayIndex] || [];
                           if (daySlots.length === 0) return null;
 
@@ -468,7 +472,8 @@ export default function QueuePage() {
                               </div>
                             </div>
                           );
-                        })
+                        })}
+                        </>
                       )}
                       <Button
                         variant="outline"
@@ -496,7 +501,7 @@ export default function QueuePage() {
             Next Up
           </CardTitle>
           <CardDescription>
-            Your upcoming queue slots.
+            Upcoming slots shown in your timezone ({appTimezone.replace(/_/g, " ")})
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
