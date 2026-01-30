@@ -125,8 +125,9 @@ export function formatTimezoneDisplay(timezone: string): string {
   }
 }
 
-// Re-export date-fns-tz utilities for timezone-aware date formatting
-export { toZonedTime, fromZonedTime, format as formatTz } from "date-fns-tz";
+// Import and re-export date-fns-tz utilities for timezone-aware date formatting
+import { toZonedTime, fromZonedTime, format as formatTz } from "date-fns-tz";
+export { toZonedTime, fromZonedTime, formatTz };
 
 /**
  * Format an ISO date string in a specific timezone.
@@ -140,10 +141,9 @@ export function formatInTimezone(
   timezone: string
 ): string {
   try {
-    const { toZonedTime, format } = require("date-fns-tz");
     const date = new Date(isoString);
     const zonedDate = toZonedTime(date, timezone);
-    return format(zonedDate, formatStr, { timeZone: timezone });
+    return formatTz(zonedDate, formatStr, { timeZone: timezone });
   } catch {
     // Fallback to basic formatting if timezone conversion fails
     return new Date(isoString).toLocaleString();

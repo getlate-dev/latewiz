@@ -28,7 +28,7 @@ export default function DashboardPage() {
   const { data: queueData } = useQueuePreview(5);
 
   const accounts = accountsData?.accounts || [];
-  const posts = postsData?.posts || [];
+  const posts = useMemo(() => postsData?.posts || [], [postsData?.posts]);
   const accountsNeedingAttention = (healthData?.accounts || []).filter(
     (a: any) => a.status === "needs_reconnect"
   ).length;

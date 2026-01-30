@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlatformSelector } from "./_components/platform-selector";
 import { MediaUploader } from "./_components/media-uploader";
 import { SchedulePicker, type ScheduleType } from "./_components/schedule-picker";
-import { Loader2, Send, PenSquare, Users, Calendar, Image } from "lucide-react";
+import { Loader2, Send, PenSquare, Users, Calendar, Image as ImageIcon } from "lucide-react";
 import type { Platform } from "@/lib/late-api";
 
 export default function ComposePage() {
@@ -141,7 +141,7 @@ export default function ComposePage() {
 
           <div className="rounded-lg bg-muted p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Image className="h-4 w-4 text-muted-foreground" />
+              <ImageIcon className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">Media</span>
             </div>
             <MediaUploader media={media} onMediaChange={setMedia} />

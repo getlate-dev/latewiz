@@ -856,7 +856,7 @@ export default function QueuePage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Queue</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{selectedQueue?.name}"? This action cannot be undone.
+              Are you sure you want to delete &ldquo;{selectedQueue?.name}&rdquo;? This action cannot be undone.
               Posts already scheduled from this queue will not be affected.
             </AlertDialogDescription>
           </AlertDialogHeader>
