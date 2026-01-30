@@ -127,7 +127,7 @@ export default function LandingPage() {
               href="https://getlate.dev/pricing"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="hidden sm:inline-block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mr-2"
             >
               Pricing
             </a>
