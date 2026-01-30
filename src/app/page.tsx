@@ -112,22 +112,9 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Fixed gradient background */}
-      <div
-        className="fixed inset-0 -z-10 overflow-hidden"
-        aria-hidden="true"
-      >
-        <div
-          className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-primary/20 blur-[100px]"
-        />
-        <div
-          className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[100px]"
-        />
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-transparent to-primary/5">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur-sm">
+      <header className="border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
           <Logo size="md" />
 
