@@ -31,8 +31,6 @@ export default function LandingPage() {
 
   useEffect(() => {
     setMounted(true);
-    document.documentElement.classList.add("landing-page");
-    return () => document.documentElement.classList.remove("landing-page");
   }, []);
 
   // Redirect to dashboard if already authenticated
@@ -114,7 +112,15 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen"
+      style={{
+        background: `
+          radial-gradient(ellipse 600px 600px at top right, rgba(229, 57, 53, 0.15), transparent),
+          radial-gradient(ellipse 600px 600px at bottom left, rgba(229, 57, 53, 0.1), transparent)
+        `,
+        backgroundAttachment: 'fixed'
+      }}
+    >
 
       {/* Header */}
       <header className="relative z-20 border-b border-border">

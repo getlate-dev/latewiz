@@ -168,18 +168,6 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  html.landing-page {
-    background-color: var(--background);
-    background-image:
-      radial-gradient(ellipse 600px 600px at top right, rgba(229, 57, 53, 0.15), transparent),
-      radial-gradient(ellipse 600px 600px at bottom left, rgba(229, 57, 53, 0.1), transparent);
-    background-attachment: fixed;
-  }
-  .dark.landing-page {
-    background-image:
-      radial-gradient(ellipse 600px 600px at top right, rgba(239, 83, 80, 0.15), transparent),
-      radial-gradient(ellipse 600px 600px at bottom left, rgba(239, 83, 80, 0.1), transparent);
-  }
 }
 
 
