@@ -2,8 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { format } from "date-fns/format";
-import { parseISO } from "date-fns/parseISO";
+import { toZonedTime, format as formatTz } from "date-fns-tz";
 import { toast } from "sonner";
 import {
   useQueues,
@@ -20,6 +19,7 @@ import {
   type QueueSlot,
   type QueueSchedule,
 } from "@/hooks";
+import { useAppStore } from "@/stores";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -95,6 +95,7 @@ export default function QueuePage() {
   const [newSlotHour, setNewSlotHour] = useState(9);
   const [newSlotMinute, setNewSlotMinute] = useState(0);
 
+  const { timezone: appTimezone } = useAppStore();
   const { data: queuesData, isLoading: queuesLoading } = useQueues();
   const { data: previewData, isLoading: previewLoading } = useQueuePreview(10);
   const { data: postsData, isLoading: postsLoading } = useScheduledPosts(10);
@@ -103,6 +104,13 @@ export default function QueuePage() {
   const deleteQueueMutation = useDeleteQueue();
 
   const queues = (queuesData?.queues || []) as QueueSchedule[];
+
+  // Helper to format dates in the user's configured timezone
+  const formatInAppTimezone = (isoString: string, formatStr: string) => {
+    const date = new Date(isoString);
+    const zonedDate = toZonedTime(date, appTimezone);
+    return formatTz(zonedDate, formatStr, { timeZone: appTimezone });
+  };
   const upcomingSlots = (previewData?.slots || []) as string[];
   const queuedPosts = ((postsData?.posts || []) as any[]).filter(
     (p) => p.queuedFromProfile
@@ -503,10 +511,10 @@ export default function QueuePage() {
                 className="flex items-center justify-between rounded-lg bg-muted p-3"
               >
                 <span className="text-sm">
-                  {format(parseISO(slot), "EEEE, MMM d")}
+                  {formatInAppTimezone(slot, "EEEE, MMM d")}
                 </span>
                 <Badge variant="outline">
-                  {format(parseISO(slot), "h:mm a")}
+                  {formatInAppTimezone(slot, "h:mm a")}
                 </Badge>
               </div>
             ))

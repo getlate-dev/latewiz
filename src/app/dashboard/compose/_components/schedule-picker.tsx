@@ -1,6 +1,7 @@
 "use client";
 
 import { format } from "date-fns/format";
+import { toZonedTime, format as formatTz } from "date-fns-tz";
 import { useAppStore } from "@/stores";
 import { useNextQueueSlot } from "@/hooks";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export function SchedulePicker({
       label: "Add to Queue",
       icon: Clock,
       description: nextSlotData?.nextSlot
-        ? `Next slot: ${format(new Date(nextSlotData.nextSlot), "MMM d, h:mm a")}`
+        ? `Next slot: ${formatTz(toZonedTime(new Date(nextSlotData.nextSlot), timezone), "MMM d, h:mm a", { timeZone: timezone })}`
         : "Uses your queue schedule",
     },
   ];

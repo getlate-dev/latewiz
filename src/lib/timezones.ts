@@ -124,3 +124,28 @@ export function formatTimezoneDisplay(timezone: string): string {
     return timezone;
   }
 }
+
+// Re-export date-fns-tz utilities for timezone-aware date formatting
+export { toZonedTime, fromZonedTime, format as formatTz } from "date-fns-tz";
+
+/**
+ * Format an ISO date string in a specific timezone.
+ * @param isoString - ISO 8601 date string (e.g., "2024-01-15T14:00:00Z")
+ * @param formatStr - date-fns format string (e.g., "EEEE, MMM d" or "h:mm a")
+ * @param timezone - IANA timezone (e.g., "America/New_York")
+ */
+export function formatInTimezone(
+  isoString: string,
+  formatStr: string,
+  timezone: string
+): string {
+  try {
+    const { toZonedTime, format } = require("date-fns-tz");
+    const date = new Date(isoString);
+    const zonedDate = toZonedTime(date, timezone);
+    return format(zonedDate, formatStr, { timeZone: timezone });
+  } catch {
+    // Fallback to basic formatting if timezone conversion fails
+    return new Date(isoString).toLocaleString();
+  }
+}
