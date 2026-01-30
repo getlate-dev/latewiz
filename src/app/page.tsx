@@ -130,7 +130,11 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-hidden">
+      {/* Background gradient orbs */}
+      <div className="fixed top-0 right-0 h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+      <div className="fixed bottom-0 left-0 h-[500px] w-[500px] rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+
       {/* Header */}
       <header className="border-b border-border">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
@@ -172,12 +176,8 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background gradient orbs */}
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-
-        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
             Your social media
