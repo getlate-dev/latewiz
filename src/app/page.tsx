@@ -13,8 +13,6 @@ import {
   Clock,
   Image as ImageIcon,
   Share2,
-  Layers,
-  BarChart3,
   Server,
   Scale,
   ArrowRight,
@@ -67,16 +65,6 @@ export default function LandingPage() {
       icon: Share2,
       title: "13 Platforms",
       description: "Instagram, TikTok, YouTube, X, LinkedIn & more",
-    },
-    {
-      icon: Layers,
-      title: "Bulk Scheduling",
-      description: "Schedule multiple posts at once",
-    },
-    {
-      icon: BarChart3,
-      title: "Analytics Ready",
-      description: "Track performance with Late's analytics",
     },
     {
       icon: Server,
