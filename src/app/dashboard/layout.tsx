@@ -28,7 +28,6 @@ import {
   Settings,
   Moon,
   Sun,
-  Menu,
   LogOut,
   ChevronDown,
   Check,
@@ -71,7 +70,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { apiKey, usageStats, logout, hasHydrated } = useAuthStore();
-  const { sidebarOpen, setSidebarOpen, toggleSidebar, defaultProfileId, setDefaultProfileId } = useAppStore();
+  const { defaultProfileId, setDefaultProfileId } = useAppStore();
   const { theme, setTheme } = useTheme();
   const { data: profilesData } = useProfiles();
 
@@ -97,13 +96,8 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-56 flex-col border-r border-border bg-card transition-transform duration-200 lg:static lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
+      {/* Sidebar - Desktop only */}
+      <aside className="hidden lg:flex w-56 flex-col border-r border-border bg-card">
         {/* Logo */}
         <div className="flex h-14 items-center border-b border-border px-4">
           <Logo size="sm" />
@@ -121,11 +115,6 @@ export default function DashboardLayout({
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => {
-                    if (window.innerWidth < 1024) {
-                      setSidebarOpen(false);
-                    }
-                  }}
                   className={cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive
@@ -145,11 +134,6 @@ export default function DashboardLayout({
           {/* Settings */}
           <Link
             href="/dashboard/settings"
-            onClick={() => {
-              if (window.innerWidth < 1024) {
-                setSidebarOpen(false);
-              }
-            }}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               pathname === "/dashboard/settings"
@@ -208,28 +192,15 @@ export default function DashboardLayout({
         )}
       </aside>
 
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
         <header className="flex h-14 items-center justify-between border-b border-border px-4">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 lg:hidden"
-              onClick={toggleSidebar}
-              aria-label="Toggle menu"
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
+            {/* Logo on mobile (since sidebar is hidden) */}
+            <div className="lg:hidden">
+              <Logo size="sm" />
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -329,10 +300,44 @@ export default function DashboardLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-y-auto p-4 pb-20 lg:p-6 lg:pb-6">
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>
       </div>
+
+      {/* Mobile Bottom Tab Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card pb-safe lg:hidden">
+        <div className="flex h-16 items-center justify-around px-2">
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            const isCompose = item.href === "/dashboard/compose";
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 transition-colors",
+                  isCompose
+                    ? isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-primary/10 text-primary"
+                    : isActive
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                )}
+              >
+                <item.icon className={cn("h-5 w-5", isCompose && "h-6 w-6")} />
+                <span className={cn("text-[10px] font-medium", isCompose && "text-xs")}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

@@ -177,6 +177,10 @@
   .hover-glow {
     @apply transition-shadow duration-200 hover:shadow-lg hover:shadow-primary/5;
   }
+  /* Safe area insets for notched devices */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 
 @keyframes shimmer {
