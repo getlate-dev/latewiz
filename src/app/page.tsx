@@ -113,10 +113,9 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/10 pointer-events-none" />
-      <div className="hidden md:block absolute -top-40 -right-40 z-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="hidden md:block absolute -bottom-40 -left-40 z-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Background gradient blobs */}
+      <div className="absolute -top-40 -right-40 z-0 w-[500px] h-[500px] bg-primary/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 z-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header */}
       <header className="relative z-10 border-b border-border bg-background/80 backdrop-blur-sm">
