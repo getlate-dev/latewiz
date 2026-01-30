@@ -168,6 +168,29 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  body.landing-page::before,
+  body.landing-page::after {
+    content: "";
+    position: fixed;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 10;
+  }
+  body.landing-page::before {
+    top: -150px;
+    right: -150px;
+    background: var(--primary);
+    opacity: 0.2;
+  }
+  body.landing-page::after {
+    bottom: -150px;
+    left: -150px;
+    background: var(--primary);
+    opacity: 0.1;
+  }
 }
 
 

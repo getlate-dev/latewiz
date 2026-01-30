@@ -31,6 +31,8 @@ export default function LandingPage() {
 
   useEffect(() => {
     setMounted(true);
+    document.body.classList.add("landing-page");
+    return () => document.body.classList.remove("landing-page");
   }, []);
 
   // Redirect to dashboard if already authenticated
@@ -112,16 +114,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <>
-      <div
-        style={{ position: 'fixed', top: -150, right: -150, width: 500, height: 500, borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 10 }}
-        className="bg-primary/20"
-      />
-      <div
-        style={{ position: 'fixed', bottom: -150, left: -150, width: 500, height: 500, borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 10 }}
-        className="bg-primary/10"
-      />
-      <div className="relative min-h-screen">
+    <div className="relative min-h-screen">
 
       {/* Header */}
       <header className="relative z-20 border-b border-border">
@@ -331,7 +324,6 @@ export default function LandingPage() {
 
       {/* API Key Modal */}
       <ApiKeyModal open={showApiKeyModal} onOpenChange={setShowApiKeyModal} />
-      </div>
-    </>
+    </div>
   );
 }
