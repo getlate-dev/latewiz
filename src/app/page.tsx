@@ -283,14 +283,16 @@ export default function LandingPage() {
               infrastructure, contribute to the project, or just use it as-is.
             </p>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <iframe
-                src="https://ghbtns.com/github-btn.html?user=getlate-dev&repo=latewiz&type=star&count=true&size=large"
-                frameBorder="0"
-                scrolling="0"
-                width="150"
-                height="30"
-                title="GitHub Stars"
-              />
+              <div className="flex justify-center w-full sm:w-auto">
+                <iframe
+                  src="https://ghbtns.com/github-btn.html?user=getlate-dev&repo=latewiz&type=star&count=true&size=large"
+                  style={{ border: 0 }}
+                  scrolling="0"
+                  width="150"
+                  height="30"
+                  title="GitHub Stars"
+                />
+              </div>
               <Button variant="outline" asChild>
                 <a
                   href="https://docs.getlate.dev"
