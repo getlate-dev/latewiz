@@ -18,8 +18,6 @@ import {
   ListOrdered,
   CheckCircle2,
   AlertCircle,
-  PenSquare,
-  Calendar,
   Loader2,
 } from "lucide-react";
 
@@ -264,37 +262,6 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Button variant="outline" className="h-auto flex-col gap-2 py-4" asChild>
-              <Link href="/dashboard/compose">
-                <PenSquare className="h-5 w-5" />
-                <span className="text-xs">Create Post</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto flex-col gap-2 py-4" asChild>
-              <Link href="/dashboard/calendar">
-                <Calendar className="h-5 w-5" />
-                <span className="text-xs">Calendar</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto flex-col gap-2 py-4" asChild>
-              <Link href="/dashboard/queue">
-                <ListOrdered className="h-5 w-5" />
-                <span className="text-xs">Queue</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto flex-col gap-2 py-4" asChild>
-              <Link href="/dashboard/accounts">
-                <Users className="h-5 w-5" />
-                <span className="text-xs">Accounts</span>
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

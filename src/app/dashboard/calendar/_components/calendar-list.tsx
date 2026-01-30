@@ -9,6 +9,7 @@ import { isToday } from "date-fns/isToday";
 import { isTomorrow } from "date-fns/isTomorrow";
 import { isYesterday } from "date-fns/isYesterday";
 import { PlatformIcon } from "@/components/shared/platform-icon";
+import { PostStatusBadge } from "@/components/posts";
 import { cn } from "@/lib/utils";
 import type { Platform } from "@/lib/late-api";
 import { Clock, ImageIcon, Video } from "lucide-react";
@@ -17,45 +18,10 @@ interface Post {
   _id: string;
   content: string;
   scheduledFor?: string;
-  status: string;
+  status: "draft" | "scheduled" | "publishing" | "published" | "failed";
   platforms: Array<{ platform: string }>;
   mediaItems?: Array<{ type: "image" | "video"; url: string }>;
 }
-
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case "scheduled":
-      return (
-        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-          Scheduled
-        </span>
-      );
-    case "published":
-      return (
-        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
-          Published
-        </span>
-      );
-    case "failed":
-      return (
-        <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
-          Failed
-        </span>
-      );
-    case "publishing":
-      return (
-        <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300">
-          Publishing
-        </span>
-      );
-    default:
-      return (
-        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-          Draft
-        </span>
-      );
-  }
-};
 
 const formatDayHeader = (date: Date) => {
   if (isToday(date)) return "Today";
@@ -190,7 +156,7 @@ export function CalendarList({
                     <p className="line-clamp-2 text-sm">
                       {post.content || "(No content)"}
                     </p>
-                    {getStatusBadge(post.status)}
+                    <PostStatusBadge status={post.status} />
                   </div>
 
                   <div className="mt-2 flex items-center gap-3">
