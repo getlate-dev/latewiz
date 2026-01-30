@@ -131,14 +131,21 @@ export default function DashboardPage() {
 
       {/* Recent Activity */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Clock className="h-4 w-4" />
-            Recent Posts
-          </CardTitle>
-          <CardDescription>
-            Your latest posts and their status.
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Clock className="h-4 w-4" />
+              Recent Posts
+            </CardTitle>
+            <CardDescription>
+              Your latest posts and their status.
+            </CardDescription>
+          </div>
+          {posts.length > 0 && (
+            <Button variant="ghost" size="sm" className="text-xs" asChild>
+              <Link href="/dashboard/calendar">View all</Link>
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-3">
           {postsLoading ? (
@@ -182,14 +189,21 @@ export default function DashboardPage() {
 
       {/* Connected Accounts */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Users className="h-4 w-4" />
-            Accounts
-          </CardTitle>
-          <CardDescription>
-            Your connected social media accounts.
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Users className="h-4 w-4" />
+              Accounts
+            </CardTitle>
+            <CardDescription>
+              Your connected social media accounts.
+            </CardDescription>
+          </div>
+          {accounts.length > 0 && (
+            <Button variant="ghost" size="sm" className="text-xs" asChild>
+              <Link href="/dashboard/accounts">View all</Link>
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-3">
           {accountsLoading ? (

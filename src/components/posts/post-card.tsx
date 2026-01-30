@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PlatformIcon } from "@/components/shared/platform-icon";
+import { cn } from "@/lib/utils";
 import type { Platform } from "@/lib/late-api";
 import {
   MoreHorizontal,
@@ -214,18 +215,18 @@ interface PostStatusBadgeProps {
 }
 
 export function PostStatusBadge({ status }: PostStatusBadgeProps) {
-  const config: Record<Post["status"], { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
+  const config: Record<Post["status"], { variant: "default" | "secondary" | "destructive" | "outline"; label: string; className?: string }> = {
     draft: { variant: "outline", label: "Draft" },
-    scheduled: { variant: "secondary", label: "Scheduled" },
-    publishing: { variant: "secondary", label: "Publishing" },
-    published: { variant: "default", label: "Published" },
+    scheduled: { variant: "secondary", label: "Scheduled", className: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300" },
+    publishing: { variant: "secondary", label: "Publishing", className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300" },
+    published: { variant: "secondary", label: "Published", className: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300" },
     failed: { variant: "destructive", label: "Failed" },
   };
 
-  const { variant, label } = config[status];
+  const { variant, label, className } = config[status];
 
   return (
-    <Badge variant={variant} className="text-xs capitalize">
+    <Badge variant={variant} className={cn("text-xs capitalize", className)}>
       {label}
     </Badge>
   );

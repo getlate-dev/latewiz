@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { format } from "date-fns/format";
 import { addMonths } from "date-fns/addMonths";
@@ -29,19 +29,31 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { PostCard } from "@/components/posts";
 import { CalendarGrid } from "./_components/calendar-grid";
+import { CalendarList } from "./_components/calendar-list";
 import {
   ChevronLeft,
   ChevronRight,
   Plus,
   Loader2,
   Calendar,
+  List,
+  Grid3X3,
 } from "lucide-react";
 import { toast } from "sonner";
+
+type ViewMode = "list" | "grid";
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+
+  // Default to list on mobile, grid on desktop
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+    setViewMode(isMobile ? "list" : "grid");
+  }, []);
 
   const deleteMutation = useDeletePost();
 
@@ -111,28 +123,50 @@ export default function CalendarPage() {
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrevMonth}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <h2 className="min-w-36 text-center text-base font-semibold">
+              <h2 className="min-w-32 text-center text-base font-semibold sm:min-w-36">
                 {format(currentDate, "MMMM yyyy")}
               </h2>
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNextMonth}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm" className="h-8" onClick={handleToday}>
+              <Button variant="outline" size="sm" className="hidden h-8 sm:inline-flex" onClick={handleToday}>
                 Today
               </Button>
             </div>
 
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+              {/* View toggle */}
+              <div className="flex rounded-lg border border-border p-0.5">
+                <Button
+                  variant={viewMode === "list" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-7 px-2"
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-7 px-2"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Stats badges - hidden on mobile */}
+              <Badge variant="outline" className="hidden text-xs bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 sm:inline-flex">
                 {scheduledCount} scheduled
               </Badge>
-              <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+              <Badge variant="outline" className="hidden text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 sm:inline-flex">
                 {publishedCount} published
               </Badge>
+
               <Button size="sm" className="h-8" asChild>
                 <Link href="/dashboard/compose">
-                  <Plus className="mr-1.5 h-4 w-4" />
-                  New Post
+                  <Plus className="h-4 w-4 sm:mr-1.5" />
+                  <span className="hidden sm:inline">New Post</span>
                 </Link>
               </Button>
             </div>
@@ -140,21 +174,27 @@ export default function CalendarPage() {
         </CardContent>
       </Card>
 
-      {/* Calendar Grid */}
+      {/* Calendar Content */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Calendar className="h-4 w-4" />
+            {viewMode === "grid" ? (
+              <Calendar className="h-4 w-4" />
+            ) : (
+              <List className="h-4 w-4" />
+            )}
             {format(currentDate, "MMMM")} Schedule
           </CardTitle>
           <CardDescription>
-            Click on a post to view details or a day to create a new post.
+            {viewMode === "grid"
+              ? "Click on a post to view details or a day to create a new post."
+              : "Tap a post to view details."}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <CalendarSkeleton />
-          ) : (
+            viewMode === "grid" ? <CalendarSkeleton /> : <ListSkeleton />
+          ) : viewMode === "grid" ? (
             <CalendarGrid
               currentDate={currentDate}
               posts={posts}
@@ -162,6 +202,12 @@ export default function CalendarPage() {
               onDayClick={(date) => {
                 console.log("Day clicked:", date);
               }}
+            />
+          ) : (
+            <CalendarList
+              currentDate={currentDate}
+              posts={posts}
+              onPostClick={setSelectedPostId}
             />
           )}
         </CardContent>
@@ -255,6 +301,31 @@ function CalendarSkeleton() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function ListSkeleton() {
+  return (
+    <div className="animate-pulse divide-y divide-border">
+      {[1, 2, 3].map((group) => (
+        <div key={group}>
+          {/* Day header skeleton */}
+          <div className="bg-muted/50 px-4 py-2">
+            <div className="h-4 w-32 rounded bg-muted" />
+          </div>
+          {/* Posts skeleton */}
+          {[1, 2].map((post) => (
+            <div key={post} className="flex gap-3 p-4">
+              <div className="h-14 w-14 shrink-0 rounded-lg bg-muted" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-3/4 rounded bg-muted" />
+                <div className="h-3 w-1/2 rounded bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
