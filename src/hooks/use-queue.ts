@@ -4,22 +4,67 @@ import { useCurrentProfileId } from "./use-profiles";
 
 export const queueKeys = {
   all: ["queue"] as const,
+  queues: (profileId: string) => ["queue", "queues", profileId] as const,
   slots: (profileId: string) => ["queue", "slots", profileId] as const,
   preview: (profileId: string, count: number) =>
     ["queue", "preview", profileId, count] as const,
   nextSlot: (profileId: string) => ["queue", "nextSlot", profileId] as const,
 };
 
+// SDK-aligned types
 export interface QueueSlot {
   dayOfWeek: number; // 0-6, Sunday = 0
-  hour: number;
-  minute: number;
+  time: string; // "HH:mm" format
+}
+
+export interface QueueSchedule {
+  _id?: string;
+  profileId?: string;
+  name?: string;
+  timezone?: string;
+  slots?: QueueSlot[];
+  active?: boolean;
+  isDefault?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Helper functions for time conversion
+export function formatTime(hour: number, minute: number): string {
+  return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+}
+
+export function parseTime(time: string): { hour: number; minute: number } {
+  const [hour, minute] = time.split(":").map(Number);
+  return { hour: hour || 0, minute: minute || 0 };
 }
 
 /**
- * Hook to fetch queue slots
+ * Hook to fetch all queues for a profile
  */
-export function useQueueSlots(profileId?: string) {
+export function useQueues(profileId?: string) {
+  const late = useLate();
+  const currentProfileId = useCurrentProfileId();
+  const targetProfileId = profileId || currentProfileId;
+
+  return useQuery({
+    queryKey: queueKeys.queues(targetProfileId || ""),
+    queryFn: async () => {
+      if (!late) throw new Error("Not authenticated");
+      const { data, error } = await late.queue.listQueueSlots({
+        query: { profileId: targetProfileId!, all: "true" },
+      });
+      if (error) throw error;
+      return data as { queues?: QueueSchedule[]; count?: number };
+    },
+    enabled: !!late && !!targetProfileId,
+  });
+}
+
+/**
+ * Hook to fetch queue slots (single queue / default)
+ */
+export function useQueueSlots(profileId?: string, queueId?: string) {
   const late = useLate();
   const currentProfileId = useCurrentProfileId();
   const targetProfileId = profileId || currentProfileId;
@@ -28,17 +73,11 @@ export function useQueueSlots(profileId?: string) {
     queryKey: queueKeys.slots(targetProfileId || ""),
     queryFn: async () => {
       if (!late) throw new Error("Not authenticated");
-      // Note: You may need to adjust this based on actual SDK method names
-      const response = await fetch(
-        `https://getlate.dev/api/v1/queue/slots?profileId=${targetProfileId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${late.apiKey}`,
-          },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to fetch queue slots");
-      return response.json();
+      const { data, error } = await late.queue.listQueueSlots({
+        query: { profileId: targetProfileId!, queueId },
+      });
+      if (error) throw error;
+      return data as { exists?: boolean; schedule?: QueueSchedule; nextSlots?: string[] };
     },
     enabled: !!late && !!targetProfileId,
   });
@@ -56,16 +95,11 @@ export function useQueuePreview(count = 10, profileId?: string) {
     queryKey: queueKeys.preview(targetProfileId || "", count),
     queryFn: async () => {
       if (!late) throw new Error("Not authenticated");
-      const response = await fetch(
-        `https://getlate.dev/api/v1/queue/preview?profileId=${targetProfileId}&count=${count}`,
-        {
-          headers: {
-            Authorization: `Bearer ${late.apiKey}`,
-          },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to fetch queue preview");
-      return response.json();
+      const { data, error } = await late.queue.previewQueue({
+        query: { profileId: targetProfileId!, count },
+      });
+      if (error) throw error;
+      return data as { profileId?: string; count?: number; slots?: string[] };
     },
     enabled: !!late && !!targetProfileId,
   });
@@ -74,7 +108,7 @@ export function useQueuePreview(count = 10, profileId?: string) {
 /**
  * Hook to get the next available queue slot
  */
-export function useNextQueueSlot(profileId?: string) {
+export function useNextQueueSlot(profileId?: string, queueId?: string) {
   const late = useLate();
   const currentProfileId = useCurrentProfileId();
   const targetProfileId = profileId || currentProfileId;
@@ -83,18 +117,63 @@ export function useNextQueueSlot(profileId?: string) {
     queryKey: queueKeys.nextSlot(targetProfileId || ""),
     queryFn: async () => {
       if (!late) throw new Error("Not authenticated");
-      const response = await fetch(
-        `https://getlate.dev/api/v1/queue/next-slot?profileId=${targetProfileId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${late.apiKey}`,
-          },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to fetch next slot");
-      return response.json();
+      const { data, error } = await late.queue.getNextQueueSlot({
+        query: { profileId: targetProfileId!, queueId },
+      });
+      if (error) throw error;
+      return data as {
+        profileId?: string;
+        nextSlot?: string;
+        timezone?: string;
+        queueId?: string;
+        queueName?: string;
+      };
     },
     enabled: !!late && !!targetProfileId,
+  });
+}
+
+/**
+ * Hook to create a new queue
+ */
+export function useCreateQueue() {
+  const late = useLate();
+  const queryClient = useQueryClient();
+  const currentProfileId = useCurrentProfileId();
+
+  return useMutation({
+    mutationFn: async ({
+      name,
+      timezone,
+      slots,
+      active = true,
+      profileId,
+    }: {
+      name: string;
+      timezone: string;
+      slots: QueueSlot[];
+      active?: boolean;
+      profileId?: string;
+    }) => {
+      if (!late) throw new Error("Not authenticated");
+      const targetProfileId = profileId || currentProfileId;
+      if (!targetProfileId) throw new Error("No profile selected");
+
+      const { data, error } = await late.queue.createQueueSlot({
+        body: {
+          profileId: targetProfileId,
+          name,
+          timezone,
+          slots,
+          active,
+        },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queueKeys.all });
+    },
   });
 }
 
@@ -110,29 +189,171 @@ export function useUpdateQueueSlots() {
     mutationFn: async ({
       slots,
       profileId,
+      queueId,
+      name,
+      timezone,
+      active,
+      setAsDefault,
+      reshuffleExisting,
     }: {
       slots: QueueSlot[];
+      profileId?: string;
+      queueId?: string;
+      name?: string;
+      timezone?: string;
+      active?: boolean;
+      setAsDefault?: boolean;
+      reshuffleExisting?: boolean;
+    }) => {
+      if (!late) throw new Error("Not authenticated");
+      const targetProfileId = profileId || currentProfileId;
+      if (!targetProfileId) throw new Error("No profile selected");
+
+      const { data, error } = await late.queue.updateQueueSlot({
+        body: {
+          profileId: targetProfileId,
+          queueId,
+          name,
+          timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+          slots,
+          active,
+          setAsDefault,
+          reshuffleExisting,
+        },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queueKeys.all });
+    },
+  });
+}
+
+/**
+ * Hook to update a queue (name, active status, etc.)
+ */
+export function useUpdateQueue() {
+  const late = useLate();
+  const queryClient = useQueryClient();
+  const currentProfileId = useCurrentProfileId();
+
+  return useMutation({
+    mutationFn: async ({
+      queueId,
+      name,
+      timezone,
+      slots,
+      active,
+      setAsDefault,
+      profileId,
+    }: {
+      queueId: string;
+      name?: string;
+      timezone?: string;
+      slots?: QueueSlot[];
+      active?: boolean;
+      setAsDefault?: boolean;
       profileId?: string;
     }) => {
       if (!late) throw new Error("Not authenticated");
       const targetProfileId = profileId || currentProfileId;
+      if (!targetProfileId) throw new Error("No profile selected");
 
-      const response = await fetch(
-        `https://getlate.dev/api/v1/queue/slots?profileId=${targetProfileId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${late.apiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ slots }),
-        }
-      );
-      if (!response.ok) throw new Error("Failed to update queue slots");
-      return response.json();
+      // We need to get the current queue to preserve existing values
+      const { data: current } = await late.queue.listQueueSlots({
+        query: { profileId: targetProfileId, queueId },
+      });
+      const currentSchedule = (current as { schedule?: QueueSchedule })?.schedule;
+
+      const { data, error } = await late.queue.updateQueueSlot({
+        body: {
+          profileId: targetProfileId,
+          queueId,
+          name: name ?? currentSchedule?.name,
+          timezone: timezone ?? currentSchedule?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+          slots: slots ?? currentSchedule?.slots ?? [],
+          active,
+          setAsDefault,
+        },
+      });
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queueKeys.all });
+    },
+  });
+}
+
+/**
+ * Hook to delete a queue
+ */
+export function useDeleteQueue() {
+  const late = useLate();
+  const queryClient = useQueryClient();
+  const currentProfileId = useCurrentProfileId();
+
+  return useMutation({
+    mutationFn: async ({
+      queueId,
+      profileId,
+    }: {
+      queueId: string;
+      profileId?: string;
+    }) => {
+      if (!late) throw new Error("Not authenticated");
+      const targetProfileId = profileId || currentProfileId;
+      if (!targetProfileId) throw new Error("No profile selected");
+
+      const { data, error } = await late.queue.deleteQueueSlot({
+        query: { profileId: targetProfileId, queueId },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queueKeys.all });
+    },
+  });
+}
+
+/**
+ * Hook to toggle queue active status
+ */
+export function useToggleQueueActive() {
+  const updateQueue = useUpdateQueue();
+
+  return useMutation({
+    mutationFn: async ({
+      queueId,
+      active,
+      profileId,
+    }: {
+      queueId: string;
+      active: boolean;
+      profileId?: string;
+    }) => {
+      return updateQueue.mutateAsync({ queueId, active, profileId });
+    },
+  });
+}
+
+/**
+ * Hook to set a queue as default
+ */
+export function useSetDefaultQueue() {
+  const updateQueue = useUpdateQueue();
+
+  return useMutation({
+    mutationFn: async ({
+      queueId,
+      profileId,
+    }: {
+      queueId: string;
+      profileId?: string;
+    }) => {
+      return updateQueue.mutateAsync({ queueId, setAsDefault: true, profileId });
     },
   });
 }
@@ -150,12 +371,46 @@ export const DAYS_OF_WEEK = [
   "Saturday",
 ] as const;
 
+export const DAYS_OF_WEEK_SHORT = [
+  "Sun",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+] as const;
+
 /**
  * Format a queue slot for display
  */
 export function formatQueueSlot(slot: QueueSlot): string {
   const day = DAYS_OF_WEEK[slot.dayOfWeek];
-  const hour = slot.hour.toString().padStart(2, "0");
-  const minute = slot.minute.toString().padStart(2, "0");
-  return `${day} at ${hour}:${minute}`;
+  return `${day} at ${slot.time}`;
+}
+
+/**
+ * Common timezones for quick selection
+ */
+export const COMMON_TIMEZONES = [
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "America/Anchorage",
+  "Pacific/Honolulu",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Asia/Singapore",
+  "Australia/Sydney",
+] as const;
+
+/**
+ * Get user's current timezone
+ */
+export function getUserTimezone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
