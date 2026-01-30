@@ -124,10 +124,10 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-background overflow-hidden">
+    <div className="min-h-screen bg-background">
       {/* Background gradient orbs */}
-      <div className="fixed top-0 right-0 h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-      <div className="fixed bottom-0 left-0 h-[500px] w-[500px] rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+      <div className="fixed -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl pointer-events-none -z-10" />
+      <div className="fixed -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/10 blur-3xl pointer-events-none -z-10" />
 
       {/* Header */}
       <header className="border-b border-border">
