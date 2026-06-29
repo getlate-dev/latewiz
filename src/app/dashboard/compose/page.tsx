@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { PlatformSelector } from "./_components/platform-selector";
 import { MediaUploader } from "./_components/media-uploader";
+import { PlatformPreviews } from "./_components/platform-previews";
 import { SchedulePicker, type ScheduleType } from "./_components/schedule-picker";
-import { Loader2, Send, PenSquare, Users, Calendar, Image as ImageIcon } from "lucide-react";
+import { Loader2, Send, PenSquare, Users, Calendar, Image as ImageIcon, Eye } from "lucide-react";
 import type { Platform } from "@/lib/late-api";
+import type { Account } from "@/hooks";
 
 export default function ComposePage() {
   const router = useRouter();
@@ -34,7 +36,7 @@ export default function ComposePage() {
   const hasImages = media.some((m) => m.type === "image");
 
   // Get selected accounts with platform info
-  const selectedAccounts = accounts.filter((a) =>
+  const selectedAccounts = accounts.filter((a: any) =>
     selectedAccountIds.includes(a._id)
   );
 
@@ -174,6 +176,28 @@ export default function ComposePage() {
           />
         </CardContent>
       </Card>
+
+      {/* Platform Previews */}
+      {selectedAccounts.length > 0 && (content.trim() || media.length > 0) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Eye className="h-4 w-4" />
+              Platform Preview
+            </CardTitle>
+            <CardDescription>
+              See how your post will look on each platform.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PlatformPreviews
+              content={content}
+              media={media.map((m) => ({ url: m.url, type: m.type }))}
+              selectedAccounts={selectedAccounts as Account[]}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Schedule */}
       <Card>
