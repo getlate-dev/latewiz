@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AccountAvatar } from "@/components/accounts";
 import { ConnectPlatformGrid } from "./_components/connect-platform-grid";
-import { PLATFORM_NAMES, type Platform } from "@/lib/late-api";
+import { getPlatformName, type Platform } from "@/lib/late-api";
 import { Users, Plus, Loader2, AlertCircle, RefreshCw, Trash2 } from "lucide-react";
 
 export default function AccountsPage() {
@@ -127,7 +127,7 @@ export default function AccountsPage() {
                       </p>
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs">
-                          {PLATFORM_NAMES[account.platform as Platform]}
+                          {getPlatformName(account.platform)}
                         </Badge>
                         {needsReconnect && (
                           <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">

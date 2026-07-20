@@ -82,6 +82,21 @@ export const PLATFORM_COLORS_DARK: Record<Platform, string> = {
   telegram: "#5BC4F0",
 };
 
+// The API can return platforms this app doesn't know about yet (e.g. whatsapp,
+// discord, ads accounts). Rendering must degrade gracefully, never crash, so
+// name/color lookups for arbitrary platform strings go through these helpers.
+export function getPlatformName(platform: string): string {
+  return (
+    PLATFORM_NAMES[platform as Platform] ??
+    platform.charAt(0).toUpperCase() + platform.slice(1)
+  );
+}
+
+export function getPlatformColor(platform: string, isDark = false): string {
+  const colors = isDark ? PLATFORM_COLORS_DARK : PLATFORM_COLORS;
+  return colors[platform as Platform] ?? (isDark ? "#9CA3AF" : "#6B7280");
+}
+
 // Platforms that require entity selection after OAuth
 export const PLATFORMS_WITH_ENTITY_SELECTION = [
   "facebook",

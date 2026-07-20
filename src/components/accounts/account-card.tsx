@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlatformIcon } from "@/components/shared/platform-icon";
-import { PLATFORM_NAMES, PLATFORM_COLORS, type Platform } from "@/lib/late-api";
+import { getPlatformName, getPlatformColor, type Platform } from "@/lib/late-api";
 import { Trash2, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
 import type { Account, AccountHealth } from "@/hooks";
 
@@ -38,7 +38,7 @@ export function AccountCard({
             </p>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-muted-foreground">
-                {PLATFORM_NAMES[platform]}
+                {getPlatformName(platform)}
               </span>
               <AccountHealthBadge isHealthy={isHealthy} compact />
             </div>
@@ -109,7 +109,7 @@ export function AccountAvatar({ account, size = "md" }: AccountAvatarProps) {
       <Avatar className={sizeClasses[size]}>
         <AvatarImage src={account.profilePicture} />
         <AvatarFallback
-          style={{ backgroundColor: PLATFORM_COLORS[platform] }}
+          style={{ backgroundColor: getPlatformColor(platform) }}
         >
           <PlatformIcon
             platform={platform}
@@ -120,7 +120,7 @@ export function AccountAvatar({ account, size = "md" }: AccountAvatarProps) {
       </Avatar>
       <div
         className={`absolute flex items-center justify-center rounded-full border-2 border-card ${badgeSizeClasses[size]}`}
-        style={{ backgroundColor: PLATFORM_COLORS[platform] }}
+        style={{ backgroundColor: getPlatformColor(platform) }}
       >
         <PlatformIcon
           platform={platform}
@@ -191,7 +191,7 @@ export function AccountListItem({
           {account.displayName || account.username}
         </p>
         <p className="text-xs text-muted-foreground">
-          {PLATFORM_NAMES[platform]}
+          {getPlatformName(platform)}
         </p>
       </div>
       {selected && (
