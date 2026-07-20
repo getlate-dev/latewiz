@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AccountAvatar } from "@/components/accounts";
 import { PlatformIcons, PostStatusBadge } from "@/components/posts";
-import { PLATFORM_NAMES, type Platform } from "@/lib/late-api";
+import { getPlatformName } from "@/lib/late-api";
 import { format } from "date-fns/format";
 import { parseISO } from "date-fns/parseISO";
 import {
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <Badge variant="secondary">
-                  {PLATFORM_NAMES[account.platform as Platform]}
+                  {getPlatformName(account.platform)}
                 </Badge>
               </div>
             ))
