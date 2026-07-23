@@ -144,4 +144,8 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-Built with [Zernio](https://zernio.com) - The Social Media Scheduling API
+<p align="center">
+  <a href="https://zernio.com">
+    <img src="https://zernio.com/brand/powered-by-zernio.svg" alt="Powered by Zernio" width="180">
+  </a>
+</p>
